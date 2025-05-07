@@ -1,0 +1,8 @@
+#!/bin/bash
+cd /home/thefleshgordon/reddit_bot
+source venv/bin/activate
+python yacht_thot_bot.py
+chmod +x /home/thefleshgordon/reddit_bot/start_bot.sh
+sudo nano /etc/systemd/system/yachtbot.service
+bash
+
