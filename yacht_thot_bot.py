@@ -1,3 +1,4 @@
+from snark_pool import get_snark_reply
 import praw
 import re
 import random
@@ -19,11 +20,11 @@ except BlockingIOError:
 
 # Reddit API credentials
 reddit = praw.Reddit(
-    client_id="jflOUZii88YoKMaLlTSORA",
-    client_secret="UJ6yio9nsWwJarTuLA6nt4sosdlkPQ",
+    client_id="w_ZViACUvzEzxjeyy9DOSw",
+    client_secret="n-FXhLT3XskU6lXHFlaTHtD7s5ORZw",
     user_agent="YachtThot/0.2 by /u/TheFleshGordon",
-    username="YachtThot",
-    password="WhiteSailWitch"
+    username="YachtThotv2_Test",
+    password="YachtThotTest"
 )
 
 # YouTube API setup
@@ -31,7 +32,7 @@ YOUTUBE_API_KEY = "AIzaSyB90AKBQ7YrHvB8BFiu_bVjNZH03wetWMQ"
 youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
 
 # Subreddit and prompts
-SUBREDDIT = "supersecretyachtclub"
+SUBREDDIT = "MorganBrennanFanClub"
 PROMPT = "YachtThot play"
 DJ_PROMPT = "YachtThot be my DJ"
 
@@ -105,20 +106,21 @@ def convert_duration(duration):
     return f"{h}:{m:02}:{s:02}" if h else f"{m}:{s:02}"
 
 def format_response(video, username):
+    base = f"**NOW PLAYING:**\n\n[{video['title']}]({video['video_url']})\n\n" \
+           f"▶⠀❙❙⠀■⠀ ─⬤────────── ⠀ 0:01 / {video['duration']} ⠀ 🔊"
     if username.lower() in [u.lower() for u in LEADER_USERNAMES]:
-        return f"Here is what you requested Dear Leader:\n\n" \
-               f"**NOW PLAYING:**\n\n[{video['title']}]({video['video_url']})\n\n" \
-               f"▶⠀❙❙⠀■⠀ ─⬤────────── ⠀ 0:01 / {video['duration']} ⠀ 🔊"
-    else:
-        return f"**NOW PLAYING:**\n\n[{video['title']}]({video['video_url']})\n\n" \
-               f"▶⠀❙❙⠀■⠀ ─⬤────────── ⠀ 0:01 / {video['duration']} ⠀ 🔊"
+        return f"Here is what you requested Dear Leader:\n\n{base}"
+    if random.random() < 0.25:
+        return base + "\n\n" + get_snark_reply()
+    return base
 
 def handle_no_result(username):
-    return (
-        "Greatest apologies Dear Leader, I couldn't find your request."
-        if username.lower() in [u.lower() for u in LEADER_USERNAMES]
-        else random.choice(NO_RESULT_RESPONSES)
-    )
+    if username.lower() in [u.lower() for u in LEADER_USERNAMES]:
+        return "Greatest apologies Dear Leader, I couldn't find your request."
+    msg = random.choice(NO_RESULT_RESPONSES)
+    if random.random() < 0.25:
+        msg += " " + get_snark_reply()
+    return msg
 
 def main():
     try:
@@ -177,4 +179,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
