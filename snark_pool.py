@@ -1,52 +1,42 @@
-import random
-
-GENERIC_SNARK = [
-    "Bold choice. I respect the lack of shame.",
-    "If cringe was a genre, this would top the charts.",
-    "Ah yes, the sonic equivalent of a face tattoo.",
-    "You’ve got the musical taste of a drunk algorithm.",
-    "Was this playing during your last bad decision?"
-]
-
-REPEAT_SNARK = [
-    "Back at it with this track again? Obsession is a hell of a thing.",
-    "You’ve played this so much it’s filing taxes.",
-    "Even Spotify thinks you need therapy.",
-    "This song again? Let it go, Elsa.",
-    "Repetition is the sincerest form of musical insanity."
-]
-
-GENRE_SNARK = {
-    "country": [
-        "Nothing like a banjo to say, ‘I’ve given up.’",
-        "Your truck must be crying right now.",
+snark_data = {
+    "repeat": [
+        "Again? You playing this like it’s a one-track mind.",
+        "Didn’t you request this already? We heard you the first time.",
+        "Somebody's stuck in a loop. Try a new song for once.",
+        "Back at it with the reruns, huh?"
     ],
-    "pop": [
-        "Pop: because you fear introspection.",
-        "Sweet, catchy, and utterly devoid of substance. Just like your ex."
+    "cringe": [
+        "Bold choice. I’ll give you that.",
+        "This better be a joke. If not… yikes.",
+        "You really woke up and picked *this*?",
+        "Audacity is free, and you clearly stocked up."
     ],
-    "metal": [
-        "Ah, metal. Screaming because talking it out was too mainstream.",
-        "This song bench presses more than you do."
+    "banger": [
+        "Certified. Absolute heat.",
+        "Taste. Real recognize real.",
+        "Now that’s how you do it. Respect.",
+        "Banger detected — you may proceed."
     ],
-    "rap": [
-        "Rap game strong, but your taste? Debatable.",
-        "Another lyrical masterpiece about money, cars, and... feelings?"
+    "tagline": [
+        "We now return to your regularly scheduled clown show.",
+        "This song choice brought to you by a complete lack of shame.",
+        "Not even ChatGPT can save your taste.",
+        "Imagine thinking this was the move… and then hitting ‘submit’."
     ],
-    "edm": [
-        "EDM: when your playlist needs more glow sticks and fewer brain cells.",
-        "The beat drops harder than your GPA."
+    "dedication": [
+        "Nothing says ‘I care’ like weaponized music.",
+        "A dedication? That’s either sweet or wildly passive-aggressive.",
+        "Sending this track like a digital middle finger. We see you.",
+        "Is this love, a threat, or both?"
+    ],
+    "gay_anthem": [
+        "YachtThot detected maximum pride levels. Fabulous.",
+        "Slay. Wig gone. Floor stomped. It’s giving ICON.",
+        "We’re serving looks and tracks — let’s go queens.",
+        "This playlist is now 200% more fierce."
     ]
 }
 
-def get_snark(context=None, genre=None, repeat=False):
-    snarks = []
-
-    if repeat:
-        snarks += REPEAT_SNARK
-    elif genre and genre.lower() in GENRE_SNARK:
-        snarks += GENRE_SNARK[genre.lower()]
-    else:
-        snarks += GENERIC_SNARK
-
-    return random.choice(snarks) if snarks and random.random() < 0.25 else ""
+def get_snark_reply(category: str) -> str:
+    import random
+    return random.choice(snark_data.get(category, ["No snark available."]))
