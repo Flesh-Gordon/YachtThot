@@ -30,7 +30,7 @@ reddit = praw.Reddit(
     client_secret="n-FXhLT3XskU6lXHFlaTHtD7s5ORZw",
     user_agent="YachtThot/0.2 by /u/TheFleshGordon",
     username="YachtThotv2_Test",
-    password="YachtThotTest"
+    password="Yachtbot1"
 )
 
 # YouTube API setup
