@@ -1,4 +1,6 @@
 from snark_pool import get_snark_reply
+from dotenv import load_dotenv
+load_dotenv()
 import praw
 import re
 import random
