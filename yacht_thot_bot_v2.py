@@ -2,7 +2,7 @@ from snark_pool import get_snark_reply
 from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path=".env")  # Explicit .env path
+load_dotenv(dotenv_path=".env")
 
 import praw
 import re
@@ -14,7 +14,7 @@ import fcntl
 import datetime
 from googleapiclient.discovery import build
 
-# Lockfile to prevent multiple instances
+# Lockfile
 lock_file = open('/home/thefleshgordon/yachtbot.lock', 'w')
 try:
     fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -22,7 +22,7 @@ except BlockingIOError:
     print("Another instance is already running. Exiting.")
     sys.exit(1)
 
-# Reddit API credentials
+# Reddit API
 reddit = praw.Reddit(
     client_id=os.getenv("REDDIT_CLIENT_ID"),
     client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
@@ -31,16 +31,15 @@ reddit = praw.Reddit(
     password=os.getenv("REDDIT_PASSWORD")
 )
 
-# YouTube API setup
+# YouTube API
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
 
-# Subreddit and prompts
-SUBREDDIT = os.getenv("SUBREDDIT", "MorganBrennanFanClub")
+# Subreddit
+SUBREDDIT = os.getenv("SUBREDDIT")
 PROMPT = "YachtThot play"
 DJ_PROMPT = "YachtThot be my DJ"
 
-# Track replies
 REPLIED_FILE = "replied_to.json"
 if os.path.exists(REPLIED_FILE):
     with open(REPLIED_FILE, "r") as f:
@@ -48,17 +47,14 @@ if os.path.exists(REPLIED_FILE):
 else:
     replied_to = set()
 
-# Special users
 LEADER_USERNAMES = ["sdevil713", "sdevil7I3", "sdevil7l3"]
 
-# Fallback replies
 NO_RESULT_RESPONSES = [
     "Couldn't find that, try again dummy",
     "I didn't find anything, BING BONG",
     "Either you can't spell, or you have a learning disability"
 ]
 
-# Music genre pools
 RANDOM_SEARCH_TERMS = [
     "lofi beats", "chill music", "vaporwave", "jazzhop", "indie pop", "ambient synth",
     "classical piano", "synthwave", "trap instrumental", "funk groove", "deep house",
@@ -115,7 +111,7 @@ def format_response(video, username):
     if username.lower() in [u.lower() for u in LEADER_USERNAMES]:
         return f"Here is what you requested Dear Leader:\n\n{base}"
     if random.random() < 0.25:
-        return base + "\n\n" + get_snark_reply()
+        return base + "\n\n" + get_snark_reply("genre")
     return base
 
 def handle_no_result(username):
@@ -123,7 +119,7 @@ def handle_no_result(username):
         return "Greatest apologies Dear Leader, I couldn't find your request."
     msg = random.choice(NO_RESULT_RESPONSES)
     if random.random() < 0.25:
-        msg += " " + get_snark_reply()
+        msg += " " + get_snark_reply("not_found")
     return msg
 
 def main():
@@ -142,7 +138,7 @@ def main():
             body = comment.body.strip()
             body_lower = body.lower()
             username = comment.author.name
-            print(f"⏺️  New comment from u/{username}: {body}")
+            print(f"🗨️  New comment from u/{username}: {body}")
 
             response = None
 
@@ -160,13 +156,14 @@ def main():
                 response = format_response(video, username) if video else handle_no_result(username)
 
             elif PROMPT.lower() in body_lower:
-                match = re.search(r'yachtthot play (.+)', body_lower, re.IGNORECASE)
-                if match:
-                    query = match.group(1).strip()
-                    video = search_youtube(query)
-                    response = format_response(video, username) if video else handle_no_result(username)
-                else:
-                    response = handle_no_result(username)
+                parts = re.split(re.escape(PROMPT), body, maxsplit=1, flags=re.IGNORECASE)
+                if len(parts) > 1:
+                    query = parts[1].strip()
+                    if query:
+                        video = search_youtube(query)
+                        response = format_response(video, username) if video else handle_no_result(username)
+                    else:
+                        response = handle_no_result(username)
 
             if response:
                 comment.reply(response)
