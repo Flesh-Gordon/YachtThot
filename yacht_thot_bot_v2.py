@@ -1,6 +1,10 @@
 from snark_pool import get_snark_reply
 from dotenv import load_dotenv
-load_dotenv()
+import os
+
+load_dotenv(dotenv_path=".env")  # Explicit path
+
+print(os.getenv("REDDIT_PASSWORD"))  # Optional debug
 import praw
 import re
 import random
