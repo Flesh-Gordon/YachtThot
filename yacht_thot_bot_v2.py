@@ -2,15 +2,13 @@ from snark_pool import get_snark_reply
 from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path=".env")  # Explicit path
+load_dotenv(dotenv_path=".env")  # Explicit .env path
 
-print(os.getenv("REDDIT_PASSWORD"))  # Optional debug
 import praw
 import re
 import random
 import time
 import json
-import os
 import sys
 import fcntl
 import datetime
@@ -26,19 +24,19 @@ except BlockingIOError:
 
 # Reddit API credentials
 reddit = praw.Reddit(
-    client_id="w_ZViACUvzEzxjeyy9DOSw",
-    client_secret="n-FXhLT3XskU6lXHFlaTHtD7s5ORZw",
-    user_agent="YachtThot/0.2 by /u/TheFleshGordon",
-    username="YachtThotv2_Test",
-    password="Yachtbot1"
+    client_id=os.getenv("REDDIT_CLIENT_ID"),
+    client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
+    user_agent=os.getenv("USER_AGENT"),
+    username=os.getenv("REDDIT_USERNAME"),
+    password=os.getenv("REDDIT_PASSWORD")
 )
 
 # YouTube API setup
-YOUTUBE_API_KEY = "AIzaSyB90AKBQ7YrHvB8BFiu_bVjNZH03wetWMQ"
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
 
 # Subreddit and prompts
-SUBREDDIT = "MorganBrennanFanClub"
+SUBREDDIT = os.getenv("SUBREDDIT", "MorganBrennanFanClub")
 PROMPT = "YachtThot play"
 DJ_PROMPT = "YachtThot be my DJ"
 
@@ -135,7 +133,6 @@ def main():
             if comment.id in replied_to:
                 continue
 
-            # Skip comments older than 60 seconds
             created_utc = datetime.datetime.utcfromtimestamp(comment.created_utc)
             now = datetime.datetime.utcnow()
             age = (now - created_utc).total_seconds()
@@ -152,25 +149,24 @@ def main():
             if "yachthot play" in body_lower:
                 response = "Learn to Spell"
 
-            elif "yachtthot be my dj" in body_lower:
+            elif DJ_PROMPT.lower() in body_lower:
                 query = random.choice(RANDOM_SEARCH_TERMS)
                 video = search_youtube(query)
                 response = format_response(video, username) if video else handle_no_result(username)
 
-            elif "yachtthot play" in body_lower and username.lower() == "flyingmadlad":
+            elif PROMPT.lower() in body_lower and username.lower() == "flyingmadlad":
                 query = random.choice(GAY_GENRE_SEARCH_TERMS)
                 video = search_youtube(query)
                 response = format_response(video, username) if video else handle_no_result(username)
 
-            elif "yachtthot play" in body_lower:
-                parts = re.split(re.escape(PROMPT), body, maxsplit=1, flags=re.IGNORECASE)
-                if len(parts) > 1:
-                    query = parts[1].strip()
-                    if query:
-                        video = search_youtube(query)
-                        response = format_response(video, username) if video else handle_no_result(username)
-                    else:
-                        response = handle_no_result(username)
+            elif PROMPT.lower() in body_lower:
+                match = re.search(r'yachtthot play (.+)', body_lower, re.IGNORECASE)
+                if match:
+                    query = match.group(1).strip()
+                    video = search_youtube(query)
+                    response = format_response(video, username) if video else handle_no_result(username)
+                else:
+                    response = handle_no_result(username)
 
             if response:
                 comment.reply(response)
