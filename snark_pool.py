@@ -39,7 +39,7 @@ GENRE_SNARK = {
     ]
 }
 
-def get_snark(context=None, genre=None, repeat=False):
+def get_snark_reply(context=None, genre=None, repeat=False):
     snarks = []
     if repeat:
         snarks += REPEAT_SNARK
