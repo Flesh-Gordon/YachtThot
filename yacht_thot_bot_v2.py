@@ -11,7 +11,7 @@ import datetime
 from googleapiclient.discovery import build
 
 # Lockfile to prevent multiple instances
-lock_file = open('/tmp/yachtbot.lock', 'w')
+lock_file = open('/home/thefleshgordon/yachtbot.lock', 'w')
 try:
     fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
 except BlockingIOError:
