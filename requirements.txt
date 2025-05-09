@@ -1,0 +1,4 @@
+praw
+python-dotenv
+google-api-python-client
+rich          # for pretty terminal logging (optional)
