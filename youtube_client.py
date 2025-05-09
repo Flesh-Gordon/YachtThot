@@ -1,14 +1,22 @@
 from youtubesearchpython import VideosSearch
 
-def get_youtube_link(query):
+def get_video_details(query):
     """
-    Searches YouTube for the query and returns the first video URL found.
+    Searches YouTube for the query and returns details:
+    - title
+    - link
+    - duration
     """
     try:
         videos_search = VideosSearch(query, limit=1)
         result = videos_search.result()
         if result["result"]:
-            return result["result"][0]["link"]
+            video = result["result"][0]
+            return {
+                "title": video.get("title", "Unknown Title"),
+                "link": video.get("link"),
+                "duration": video.get("duration", "Unknown")
+            }
         return None
     except Exception as e:
         print(f"[YouTube API ERROR]: {e}")
