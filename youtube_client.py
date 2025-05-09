@@ -1,28 +1,20 @@
-from googleapiclient.discovery import build
-import os
+from youtubesearchpython import VideosSearch
 
 def get_video_details(query):
-    api_key = os.getenv("YOUTUBE_API_KEY")
-    if not api_key:
-        print("[YouTube API ERROR]: Missing API key.")
-        return None
-
+    """
+    Searches YouTube for the query and returns the video title, channel, and link.
+    """
     try:
-        youtube = build("youtube", "v3", developerKey=api_key)
-        request = youtube.search().list(q=query, part="snippet", maxResults=1, type="video")
-        response = request.execute()
-
-        if "items" in response and len(response["items"]) > 0:
-            item = response["items"][0]
-            video_id = item["id"]["videoId"]
-            title = item["snippet"]["title"]
+        videos_search = VideosSearch(query, limit=1)
+        result = videos_search.result()
+        if result.get("result"):
+            video = result["result"][0]
             return {
-                "link": f"https://www.youtube.com/watch?v={video_id}",
-                "title": title
+                "title": video.get("title"),
+                "channel": video.get("channel", {}).get("name", "unknown"),
+                "link": video.get("link")
             }
-
         return None
-
     except Exception as e:
         print(f"[YouTube API ERROR]: {e}")
         return None
