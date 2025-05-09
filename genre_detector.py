@@ -1,16 +1,16 @@
 import re
 
 GENRE_KEYWORDS = {
-    "bro-country": ["florida georgia line", "luke bryan", "jason aldean"],
-    "hyperpop": ["100 gecs", "hyperpop", "glaive", "osquinn"],
-    "eurodance": ["aqua", "eiffel 65", "eurodance", "2 unlimited"],
-    "classic rock": ["led zeppelin", "queen", "acdc", "classic rock"],
-    "pop": ["taylor swift", "britney spears", "justin bieber"],
+    "bro-country": ["florida georgia line", "luke bryan"],
+    "hyperpop": ["100 gecs", "charli xcx", "dorian electra"],
+    "eurodance": ["aqua", "vengaboys", "eiffel 65"],
+    "hip hop": ["ying yang twins", "missy elliott", "lil jon"],
 }
 
-def detect_genre(title):
-    title_lower = title.lower()
+def detect_genre(title, channel):
+    query = f"{title} {channel}".lower()
     for genre, keywords in GENRE_KEYWORDS.items():
-        if any(re.search(rf"\b{k}\b", title_lower) for k in keywords):
-            return genre
+        for keyword in keywords:
+            if re.search(rf"\b{re.escape(keyword)}\b", query):
+                return genre
     return "unknown"
