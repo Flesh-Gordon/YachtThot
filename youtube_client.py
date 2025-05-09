@@ -1,14 +1,11 @@
 from youtubesearchpython import VideosSearch
 
 def get_video_details(query):
-    """
-    Searches YouTube for the query and returns the video title, channel, and link.
-    """
     try:
-        videos_search = VideosSearch(query, limit=1)
-        result = videos_search.result()
-        if result.get("result"):
-            video = result["result"][0]
+        search = VideosSearch(query, limit=1)
+        results = search.result()
+        if results.get("result"):
+            video = results["result"][0]
             return {
                 "title": video.get("title"),
                 "channel": video.get("channel", {}).get("name", "unknown"),
