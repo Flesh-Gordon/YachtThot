@@ -1,45 +1,35 @@
-# comment_handler.py
-
+import re
 from youtube_client import get_video_details
 from genre_detector import detect_genre
-from dedication_tracker import extract_dedication
 from snark_logic import maybe_add_snark
+from dedication_tracker import extract_dedication
 
 def handle_comment(comment):
-    query = comment.body.lower().replace("yachtthot", "").strip()
+    text = comment.body
+    author = str(comment.author)
 
-    # Dedication detection
-    dedication_result = extract_dedication(query)
-    is_dedication = False
-    target_user = None
-    if dedication_result:
-        is_dedication = True
-        target_user = dedication_result
-
-    # YouTube search
-    video = get_video_details(query)
-
-    # No result case
-    if not video:
-        snark = maybe_add_snark(comment.author.name, genre=None, is_dedication=is_dedication, song_found=False)
-        response = "**NOW PLAYING:**  \n*No results found.*"
-        if snark:
-            response += f"\n\n{snark}"
-        comment.reply(response)
+    # Check for play command
+    match = re.search(r"YachtThot\s+play\s+(.+)", text, re.IGNORECASE)
+    if not match:
         return
 
-    # Genre detection
-    genre = detect_genre(video['title'], video['channel'])
+    query = match.group(1).strip()
+    is_dedication, target_user = extract_dedication(query)
+    video = get_video_details(query)
 
-    # Snark logic
-    is_repeat = False  # You can implement repeat logic here if needed
-    snark = maybe_add_snark(comment.author.name, genre, is_dedication=is_dedication, is_repeat=is_repeat)
+    if video:
+        genre = detect_genre(video["title"], video["channel"])
+        snark = maybe_add_snark(author, genre, is_dedication=is_dedication, is_repeat=False)
+        response = (
+            f"**NOW PLAYING:**\n\n"
+            f"[{video['title']}]({video['link']})\n\n"
+        )
+    else:
+        genre = "unknown"
+        snark = maybe_add_snark(author, genre, is_dedication=is_dedication, song_found=False)
+        response = "**NOW PLAYING:**\n\n*No results found.*\n\n"
 
-    # Final formatted reply
-    response = f"""**NOW PLAYING:**  
-[{video['title']}]({video['url']})  
-  
-{snark}""" if snark else f"""**NOW PLAYING:**  
-[{video['title']}]({video['url']})"""
+    if snark:
+        response += f"{snark}\n"
 
-    comment.reply(response)
+    comment.reply(response.strip())
