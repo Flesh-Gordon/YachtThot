@@ -1,35 +1,36 @@
-from snark_logic import maybe_add_snark
-from youtube_client import fetch_song_link
-from request_tracker import is_repeat_request, log_request
+from youtube_client import get_video_details
 from genre_detector import detect_genre
-from dedication_tracker import extract_dedication
+from snark_logic import maybe_add_snark
+from youtube_search import get_youtube_link
+import re
 
-TRIGGER_PREFIX = "yachtthot"
+def extract_video_id(youtube_url):
+    match = re.search(r"(?:v=|youtu.be/)([\w-]{11})", youtube_url)
+    return match.group(1) if match else None
 
 def handle_comment(comment):
-    body = comment.body.lower()
+    text = comment.body
+    username = comment.author.name
 
-    if not body.startswith(TRIGGER_PREFIX):
+    match = re.search(r"YachtThot\s+play\s+(.+)", text, re.IGNORECASE)
+    if not match:
         return
 
-    query = comment.body[len(TRIGGER_PREFIX):].strip()
+    song_request = match.group(1).strip()
+    video_url = get_youtube_link(song_request)
+    video_id = extract_video_id(video_url)
 
-    song, link = fetch_song_link(query)
-    if not link:
-        snark = maybe_add_snark(comment.author.name, genre=None, is_dedication=False, song_found=False)
-        comment.reply(f"Couldn't find that track. {snark}")
-        return
+    genre = "unknown"
+    if video_id:
+        video_data = get_video_details(video_id)
+        if video_data:
+            genre = detect_genre(
+                title=video_data["title"],
+                description=video_data["description"],
+                tags=video_data["tags"]
+            )
 
-    genre = detect_genre(song)
-    is_repeat = is_repeat_request(comment.author.name, song)
-    log_request(comment.author.name, song)
+    snark = maybe_add_snark(username=username, genre=genre, is_dedication=False, is_repeat=False, song_found=True)
 
-    dedication_target = extract_dedication(query)
-
-    snark = maybe_add_snark(comment.author.name, genre, bool(dedication_target), song_found=True, is_repeat=is_repeat)
-
-    now_playing = f"**NOW PLAYING:** [{song}]({link})"
-    if dedication_target:
-        now_playing += f" — Dedicated to u/{dedication_target}"
-
-    comment.reply(f"{now_playing}\n\n{snark}")
+    reply_text = f"**NOW PLAYING:**\n\n[{video_data['title']}]({video_url})\n\n{snark}" if video_data else "Could not find a matching song."
+    comment.reply(reply_text)
