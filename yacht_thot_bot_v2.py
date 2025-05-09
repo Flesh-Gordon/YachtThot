@@ -11,6 +11,7 @@ import fcntl
 import datetime
 from googleapiclient.discovery import build
 
+# Load environment variables
 load_dotenv(dotenv_path=".env")
 
 # Lockfile
@@ -23,17 +24,18 @@ except BlockingIOError:
 
 # Reddit API
 reddit = praw.Reddit(
-    client_id=os.getenv("REDDIT_CLIENT_ID"),
-    client_secret=os.getenv("REDDIT_SECRET"),
+    client_id=os.getenv("REDDIT_CLIENT_ID", "").strip(),
+    client_secret=os.getenv("REDDIT_CLIENT_SECRET", "").strip(),
     user_agent="YachtThot/0.2 by /u/TheFleshGordon",
-    username=os.getenv("REDDIT_USERNAME"),
-    password=os.getenv("REDDIT_PASSWORD")
+    username=os.getenv("REDDIT_USERNAME", "").strip(),
+    password=os.getenv("REDDIT_PASSWORD", "").strip()
 )
 
-# YouTube
-YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+# YouTube API
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "").strip()
 youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
 
+# Config
 SUBREDDIT = "MorganBrennanFanClub"
 PROMPT = "YachtThot play"
 DJ_PROMPT = "YachtThot be my DJ"
@@ -53,8 +55,21 @@ NO_RESULT_RESPONSES = [
     "Either you can't spell, or you have a learning disability."
 ]
 
-RANDOM_SEARCH_TERMS = [...]
-GAY_GENRE_SEARCH_TERMS = [...]
+RANDOM_SEARCH_TERMS = [
+    "lofi beats", "chill music", "vaporwave", "jazzhop", "indie pop", "ambient synth",
+    "classical piano", "synthwave", "trap instrumental", "funk groove", "deep house",
+    "future bass", "reggae vibes", "acoustic covers", "classic rock", "k-pop hits",
+    "edm festival mix", "techno workout", "blues guitar", "melodic dubstep", "folk music",
+    "latin pop", "instrumental chill", "hip hop 90s", "r&b soul mix", "psytrance journey",
+    "epic orchestral", "japanese city pop", "french cafe music", "caribbean dancehall",
+    "bedroom pop", "ambient rain sounds"
+]
+
+GAY_GENRE_SEARCH_TERMS = [
+    "gay anthems", "lgbtq playlist", "pride party mix", "drag queen performance music",
+    "troye sivan hits", "rupaul songs", "hyperpop queer playlist", "sam smith best songs",
+    "lady gaga essentials", "kim petras mix", "queer indie pop", "club remixes pride"
+]
 
 def search_youtube(query):
     request = youtube.search().list(part="snippet", maxResults=1, q=query, type="video")
@@ -99,9 +114,7 @@ def handle_no_result(username, dedication=None):
         if username.lower() in [u.lower() for u in LEADER_USERNAMES]
         else random.choice(NO_RESULT_RESPONSES)
     )
-    if dedication:
-        base += " " + get_snark_reply()
-    elif random.random() < 0.25:
+    if dedication or random.random() < 0.25:
         base += " " + get_snark_reply()
     return base
 
@@ -120,7 +133,6 @@ def main():
             username = comment.author.name
             print(f"New comment from u/{username}: {body}")
             response = None
-
             lower = body.lower()
 
             if "yachthot play" in lower:
