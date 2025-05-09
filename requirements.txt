@@ -1,6 +1,6 @@
 praw
 python-dotenv
-youtubesearchpython
+youtube-search-python
 google-api-python-client
 rich          # for pretty terminal logging
 
