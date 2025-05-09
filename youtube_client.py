@@ -18,3 +18,4 @@ def get_video_details(query):
     except Exception as e:
         print(f"[YouTube API ERROR]: {e}")
         return None
+        
