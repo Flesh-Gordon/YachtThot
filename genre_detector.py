@@ -1,13 +1,24 @@
-# genre_detector.py
+GENRE_KEYWORDS = {
+    "hip hop": "hip-hop",
+    "rap": "hip-hop",
+    "country": "bro-country",
+    "pop": "pop",
+    "edm": "edm",
+    "hyperpop": "hyperpop",
+    "trap": "hip-hop",
+    "rock": "rock",
+    "indie": "indie",
+    "reggaeton": "latin",
+    "jazz": "jazz",
+    "kpop": "k-pop"
+}
 
-def detect_genre(song_title):
-    lowered = song_title.lower()
+def detect_genre(title, description="", tags=None):
+    text = f"{title} {description}".lower()
+    tags = tags or []
 
-    if any(term in lowered for term in ["luke bryan", "florida georgia line", "jason aldean"]):
-        return "bro-country"
-    elif any(term in lowered for term in ["hyperpop", "100 gecs", "bladee"]):
-        return "hyperpop"
-    elif "edm" in lowered or "rave" in lowered:
-        return "edm"
-    else:
-        return "unknown"
+    for keyword, genre in GENRE_KEYWORDS.items():
+        if keyword in text or any(keyword in tag.lower() for tag in tags):
+            return genre
+
+    return "unknown"
