@@ -2,6 +2,8 @@ from reddit_client import reddit
 from comment_handler import handle_comment
 import time
 
+print(f"Authenticated as: {reddit.user.me()}")
+
 SUBREDDIT = "MorganBrennanFanClub"
 
 def main():
