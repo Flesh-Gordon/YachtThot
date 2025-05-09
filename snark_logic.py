@@ -20,13 +20,13 @@ def maybe_add_snark(username, genre, is_dedication=False, song_found=True, is_re
         return get_no_result_snark() if random.random() < SNARK_PROBABILITY else ""
 
     # Trigger snark on repeat or genre match
-if is_repeat or (genre and genre.lower() in SNARKY_GENRES):
-    if random.random() < SNARK_PROBABILITY:
-        return get_snark_reply()
+    if is_repeat or (genre and genre.lower() in SNARKY_GENRES):
+        if random.random() < SNARK_PROBABILITY:
+            return get_snark_reply()
 
-# Fallback snark on "unknown" genre (lower chance)
-if genre == "unknown" and random.random() < 0.1:
-    return get_snark_reply()
+    # Fallback snark on "unknown" genre (lower chance)
+    if genre == "unknown" and random.random() < 0.1:
+        return get_snark_reply()
 
     # 25% general snark chance
     if random.random() < SNARK_PROBABILITY:
